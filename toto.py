@@ -36,6 +36,7 @@ def programmeCAN():
 	portCARBERRY.write('AT<CR><LF>')
 	reponsetest = portCARBERRY.read()
 	if (reponsetest == 'OK<CR><LF>')
+	 
 		braketempFL = receptiondonneeCAN('CH2', adresse, '100') 
 		braketempFR = receptiondonneeCAN('CH2', adresse, '100')
 		braketempRL = receptiondonneeCAN('CH2', adresse, '100')
