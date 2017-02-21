@@ -59,19 +59,22 @@ def programmeCAN():
 def receptiondonneeCAN(numeroCAN, adresse, rafraichissement)
 	mode = ("CAN MODE USER")
 	portCARBERRY.write(mode)
-	testreceptionOK('mode')
+	valeurerreur = testreceptionOK('mode')
 	
-	open = ("CAN USER OPEN {} {}".format(numeroCAN, rafraichissement))
-	portCARBERRY.write(open)
-	testreceptionOK('open')
-	
-	alignement = ("CAN USER ALIGN RIGHT")
-	portCARBERRY.write(alignement)
-	testreceptionOK('alignement')
-	
-	ODBquerry = ("OBD QUERY {} {}".format(numeroCAN, adresse))
-	messagebrut = portCARBERRY.read()
-	valeur = decodage(messagebrut)
+	if (valeurerreur = 1)
+		open = ("CAN USER OPEN {} {}".format(numeroCAN, rafraichissement))
+		portCARBERRY.write(open)
+		valeurerreur = testreceptionOK('open')
+		
+		if (valeurerreur = 1)
+			alignement = ("CAN USER ALIGN RIGHT")
+			portCARBERRY.write(alignement)
+			valeurerreur = testreceptionOK('alignement')
+			
+			if (valeurerreur = 1)
+				ODBquerry = ("OBD QUERY {} {}".format(numeroCAN, adresse))
+				messagebrut = portCARBERRY.read()
+				valeur = decodage(messagebrut)
 	return valeur
 	
 def decodage(messagecarberrybrut)
@@ -87,13 +90,13 @@ def testreceptionOK(typeerreur):
 	reponsetest = portCARBERRY.read()
 	if (reponsetest == 'OK\r\n')
 		receptiondonneeCAN()
-		erreur = 0
+		return 1
 	else
-		erreur = 1
 		message = ("erreur CARBERRY ") + typeerreur
 		portUSB.write(message)
 		time.sleep(0.01)
-	return erreur
+		return 0
+
 	
 
 while True: # boucle répétée jusqu'à l'interruption du programme
