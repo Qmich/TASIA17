@@ -12,11 +12,11 @@ portUSB = serial.Serial("/dev/ttyACM0", 115200)
 portCARBERRY = serial.Serial("/dev/ttyAMA0", 115200)
 
 def envoi(variable, nomparametre):
-	message = nomparametre + ("={}".format(variable))
+	message = nomparametre + ("={}".format(variable)) 
 	portUSB.write(message)
 	time.sleep(0.01)
 
-def envoidetouteslesvariables():
+def envoidetouteslesvariables(): #envoi de toutes les variables à l'arduino
 	envoi(braketempFL, "braketempFL")
 	envoi(braketempFR, "braketempFR")
 	envoi(braketempRL, "braketempRL")
@@ -33,10 +33,10 @@ def envoidetouteslesvariables():
 	envoi(boitesequentielle, "boitesequentielle")
 	
 def programmeCAN():
-	portCARBERRY.write("AT\r\n")
-	envoipossible = testreceptionOK("initialisation Carberry")
+	portCARBERRY.write("AT\r\n") #on envoie AT afin de savoir si la carte carberry est connectée
+	envoipossible = testreceptionOK("initialisation") # on test la réponse. si c'est OK, testreception renvoie 1
 	
-	if (envoipossible == 1)
+	if (envoipossible == 1) # on recuperes ces differentes valeurs
 	 	braketempFL = receptiondonneeCAN("CH2", adresse, "100") 
 		braketempFR = receptiondonneeCAN("CH2", adresse, "100")
 		braketempRL = receptiondonneeCAN("CH2", adresse, "100")
@@ -55,36 +55,37 @@ def programmeCAN():
 
 
 def receptiondonneeCAN(numeroCAN, adresse, rafraichissement)
-	mode = ("CAN MODE USER")
+	mode = ("CAN MODE USER")  # http://www.carberry.it/wiki/carberry:cmds:subsys:canbus:mode
 	portCARBERRY.write(mode)
-	etapesuivante = testreceptionOK("mode")
+	etapesuivante = testreceptionOK("mode") # Le carberry renvoie OK à chaque recepetion de commande
 	
 	if (etapesuivante = 1)
-		open = ("CAN USER OPEN {} {}".format(numeroCAN, rafraichissement))
+		open = ("CAN USER OPEN {} {}".format(numeroCAN, rafraichissement)) # http://www.carberry.it/wiki/carberry:cmds:subsys:canbus:user:open
 		portCARBERRY.write(open)
 		etapesuivante = testreceptionOK("open")
 		
 		if (etapesuivante = 1)
-			alignement = ("CAN USER ALIGN RIGHT")
+			alignement = ("CAN USER ALIGN RIGHT") # http://www.carberry.it/wiki/carberry:cmds:subsys:canbus:user:align
 			portCARBERRY.write(alignement)
 			etapesuivante = testreceptionOK("alignement")
 			
 			if (etapesuivante = 1)
-				ODBquerry = ("OBD QUERY {} {}".format(numeroCAN, adresse))
+				ODBquerry = ("OBD QUERY {} {}".format(numeroCAN, adresse)) # http://www.carberry.it/wiki/carberry:cmds:subsys:obd:query_new:query
 				portCARBERRY.write(ODBquerry)
 				messagebrut = portCARBERRY.read()
-				valeurducapteur = decodage(messagebrut)
+				valeurducapteur = decodage(messagebrut) #on decode le message renvoyé par le carberry
 	return valeurducapteur
 	
-def decodage(messagecarberrybrut) # message brut du type : 1A 2B 32 <CR><LF>
-	messagecarberrybrut = messagecarberrybrut.replace(("\r","") # on enleve le <CR> du fin de message : 1A 2B 32 <LF>
-	messagecarberrybrut = messagecarberrybrut.replace(("\n","") # puis on enleve le <LF> : 1A 2B 32 
+def decodage(messagecarberrybrut) # message brut du type : 1A 2B 32 <CR><LF> OK<CR><LF>
+	messagecarberrybrut = messagecarberrybrut.replace(("\r","") # on enleve le <CR> du fin de message : 1A 2B 32 <LF> OK<LF>
+	messagecarberrybrut = messagecarberrybrut.replace(("\n","") # puis on enleve le <LF> : 1A 2B 32 OK
+	messagecarberrybrut = messagecarberrybrut.replace(("OK","") # puis on enleve le <LF> : 1A 2B 32
 	variablestring = messagecarberrybrut.replace(" ", "") # on enleve maintenant les espaces seperant les differents caracteres : 1A2B32 (du type str)
 	variableint = int(variablestring, 16) # on transforme le string en int tout en passant en base 10 : 1714994 (du type int)
 	return variableint
 
 def testreceptionOK(typeerreur):
-	reponsetest = portCARBERRY.read()
+	reponsetest = portCARBERRY.read() # on lit la réponse 
 	if (reponsetest == "OK\r\n")
 		return 1
 	else
@@ -92,11 +93,10 @@ def testreceptionOK(typeerreur):
 		portUSB.write(message)
 		time.sleep(0.01)
 		return 0
-
 	
 
 while True: # boucle répétée jusqu'à l'interruption du programme
 	
-	programmeCAN()
-	envoidetouteslesvariables()
+	programmeCAN() # lance la recupération des valeurs CAN
+	envoidetouteslesvariables() # lance l'envoi des differentes variables
 
