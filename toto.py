@@ -33,11 +33,10 @@ def envoidetouteslesvariables():
 	envoi(boitesequentielle, 'boitesequentielle')
 	
 def programmeCAN():
-	portCARBERRY.write('AT<CR><LF>')
+	portCARBERRY.write('AT\r\n')
 	reponsetest = portCARBERRY.read()
-	if (reponsetest == 'OK<CR><LF>')
-	 
-		braketempFL = receptiondonneeCAN('CH2', adresse, '100') 
+	if (reponsetest == 'OK\r\n')
+	 	braketempFL = receptiondonneeCAN('CH2', adresse, '100') 
 		braketempFR = receptiondonneeCAN('CH2', adresse, '100')
 		braketempRL = receptiondonneeCAN('CH2', adresse, '100')
 		braketempRR = receptiondonneeCAN('CH2', adresse, '100')
@@ -77,15 +76,16 @@ def receptiondonneeCAN(numeroCAN, adresse, rafraichissement)
 	
 def decodage(messagecarberrybrut)
 	i=0
-	while (messagecarberrybrut[i]!= '<CR><LF>')
+	while (messagecarberrybrut[i]!= '\r\n')
 		messagecarberry[i]=messagecarberrybrut[i]
+		i += 1
 	variablestring = messagecarberry.replace(' ', '')
 	variableint = int(variablestring)
 	return variableint
 
 def testreceptionOK(typeerreur):
 	reponsetest = portCARBERRY.read()
-	if (reponsetest == 'OK<CR><LF>')
+	if (reponsetest == 'OK\r\n')
 		receptiondonneeCAN()
 		erreur = 0
 	else
